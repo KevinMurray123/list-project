@@ -2,7 +2,7 @@ let date = new Date();
 let year = date.getFullYear()
 
 class Passenger{
-    constructor(firstname, lastname, birthday, departureCity, arrivalCity, dateLeaving, dateReturning, numberOfBags, id){
+    constructor(firstname, lastname, birthday, departureCity, arrivalCity, dateLeaving, dateReturning, numberOfBags, id, meal, duration, age, extras, cost){
         this.firstname = firstname;
         this.lastname = lastname;
         this.birthday = birthday;
@@ -12,11 +12,17 @@ class Passenger{
         this.dateReturning = dateReturning;
         this.numberOfBags = numberOfBags;
         this.id = id;
+        this.meal = meal;
+        this.duration = duration
+        this.age = age;
+        this.extras = extras;
+        this.cost = cost;
     }
+
 }
 
 let passengerList = [];
-let idCount = 1;
+let idCount = 0;
 
 function addToList(){
     //getting all the info
@@ -28,36 +34,54 @@ function addToList(){
     let dateLeaving = document.getElementById("dateLeaving").value;
     let dateReturning = document.getElementById("dateReturning").value;
     let numberOfBags = document.getElementById("numberOfBags").value;
-
-
     //calculating all the extra information
 
-        //age & if they can drink
-            birthdayNumbers = birthday.split("-")
-            console.log(birthdayNumbers)
-            let canDrink = false;
-            let age = year - birthdayNumbers[0];
-            if(age >= 21){
-                canDrink = true;
+        let radioButtons = document.getElementsByName('meal');
+
+        for (let i = 0, length = radioButtons.length; i < length; i++){
+            if (radioButtons[i].checked){
+                var meal = radioButtons[i].value
+                break;
             }
+        }
+
+        let inputElements = document.getElementsByName('extra');
+        let extraList = ""
+        let extraCount = 0;
+
+        for(var i = 0 ; inputElements[i] ; i++){
+            if(inputElements[i].checked){
+                extraList += inputElements[i].value + " ";
+                extraCount++;
+            }
+        }
+        console.log(extraList)
+        //age & if they can drink
+
+            let DoB = new Date(birthday);
+
+            let age = Date.now() - DoB.getTime();
+            age = Math.abs(Math.floor(age / (1000 * 60 * 60 * 24 * 365.25)));
+
         //Extra Costs
+            let totalCost = 300;
             let extraCost = 0;
             extraCost += numberOfBags * 20;
+            extraCost += extraCount * 10;
+            totalCost += extraCost;
 
         //How long they'll be leaving for
-            leavingNumbers = dateLeaving.split("-")
-            returningNumbers = dateReturning.split("-")
+            let leaveDate = new Date(dateLeaving);
+            let returnDate = new Date(dateReturning)
 
-            let daysGone = returningNumbers[2] - leavingNumbers[2];
-            console.log(daysGone);
+            let duration = returnDate - leaveDate
+            duration = Math.abs(Math.floor(duration / (1000 * 60 * 60 * 24))) 
     //Checking if all the info is there before it goes into the list.
     if(firstname != "" && lastname != "" && birthday != "" && departureCity != "" && arrivalCity != "" && dateLeaving != "" && dateReturning != ""){
-        let passenger = new Passenger(firstname, lastname, birthday, departureCity, arrivalCity, dateLeaving, dateReturning, numberOfBags, idCount)
+        let passenger = new Passenger(firstname, lastname, birthday, departureCity, arrivalCity, dateLeaving, dateReturning, numberOfBags, idCount, meal, duration, age, extraList, totalCost)
         idCount++;
-
         //Adds the passenger to the list and resets the inputs
         passengerList.push(passenger);
-        console.log(passengerList[0])
         document.getElementById("firstname").value = "";
         document.getElementById("lastname").value = "";
         document.getElementById("birthday").value = "";
@@ -66,13 +90,33 @@ function addToList(){
         document.getElementById("dateLeaving").value = "";
         document.getElementById("dateReturning").value = "";
         document.getElementById("numberOfBags").value = "";
+        document.getElementsByName("meal").checked = false;
     }
 }
 
 function print(){
     let space = document.getElementById("printSpace");
-    space.innerHTML = "";
+    names.innerHTML = "";
     for(let i = 0; i < passengerList.length; i++){
-        space.innerHTML += `<div><span>${passengerList[i].firstname} ${passengerList[i].lastname}</span><br><br>ID: ${passengerList[i].id}<br>Birthday: ${passengerList[i].birthday}<br>Departure City: ${passengerList[i].departureCity}<br>Arrival City: ${passengerList[i].arrivalCity}<br>Date Leaving: ${passengerList[i].dateLeaving}<br>Date Returning: ${passengerList[i].dateReturning}<br>Number of Bags: ${passengerList[i].numberOfBags}</div>`
+        names.innerHTML += `<div><span>${passengerList[i].firstname} ${passengerList[i].lastname}</span>ID: ${passengerList[i].id}`
     }
+}
+
+function search(){
+    let searchedId = document.getElementById("search").value
+    console.log(passengerList[searchedId]);
+    document.getElementById("outfirstName").value = passengerList[searchedId].firstname
+    document.getElementById("outlastName").value = passengerList[searchedId].lastname
+    document.getElementById("outDoB").value = passengerList[searchedId].birthday
+    document.getElementById("outBags").value = passengerList[searchedId].numberOfBags
+    document.getElementById("outDeparting").value = passengerList[searchedId].departureCity
+    document.getElementById("outArriving").value = passengerList[searchedId].arrivalCity
+    document.getElementById("outLeaveDate").value = passengerList[searchedId].dateLeaving
+    document.getElementById("outReturnDate").value = passengerList[searchedId].dateReturning
+    document.getElementById("outDuration").textContent = passengerList[searchedId].duration + " Days"
+    document.getElementById("outMeal").value = passengerList[searchedId].meal
+    document.getElementById("outage").textContent = passengerList[searchedId].age
+    document.getElementById("outExtras").value = passengerList[searchedId].extras
+    document.getElementById("outcost").textContent = "$" + passengerList[searchedId].cost
+    // document.getElementById("outExtras").value = passengerList[searchedId].
 }
